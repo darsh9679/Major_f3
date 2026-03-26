@@ -69,7 +69,7 @@ const Navbar = ({ user }: NavbarProps) => {
             Generate Interview
           </Link>
           <a
-            href="https://resume-five-psi-95.vercel.app/"
+            href="https://resume-gules-nine.vercel.app"
             target="_blank"
             rel="noopener noreferrer"
             className="text-light-100 hover:text-primary-100 px-3 py-2 rounded-md text-sm font-medium transition-colors"
