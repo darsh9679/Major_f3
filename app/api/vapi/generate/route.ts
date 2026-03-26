@@ -17,10 +17,32 @@ export async function POST(request: Request) {
       );
     }
 
-    const { type, role, level, techstack, amount, userid } = body;
+    console.log("[GENERATE] Raw body received:", JSON.stringify(body, null, 2));
+
+    // Handle Vapi's webhook payload format
+    // Vapi sends: { message: { type: "tool-calls", toolCallList: [{ function: { name, arguments } }] } }
+    let params: Record<string, any> = {};
+
+    if (body?.message?.toolCallList?.length > 0) {
+      // Vapi tool-call format
+      const toolCall = body.message.toolCallList[0];
+      params = toolCall?.function?.arguments || {};
+      console.log("[GENERATE] Detected Vapi tool-call format, params:", params);
+    } else if (body?.message?.functionCall?.parameters) {
+      // Vapi older function-call format
+      params = body.message.functionCall.parameters;
+      console.log("[GENERATE] Detected Vapi function-call format, params:", params);
+    } else {
+      // Direct flat JSON call (e.g. from the app directly or testing)
+      params = body;
+      console.log("[GENERATE] Detected direct call format, params:", params);
+    }
+
+    const { type, role, level, techstack, amount, userid } = params;
 
     // Validate required fields
     if (!type || !role || !level || !techstack || !amount || !userid) {
+      console.error("[GENERATE] Missing required fields:", { type, role, level, techstack, amount, userid });
       return Response.json(
         {
           success: false,
@@ -107,7 +129,13 @@ export async function POST(request: Request) {
 
     await db.collection("interviews").add(interview);
 
-    return Response.json({ success: true }, { status: 200 });
+    console.log("[GENERATE] Interview created successfully for userId:", userid);
+
+    // Return success in Vapi-compatible format (for tool-call responses)
+    return Response.json({ 
+      results: [{ toolCallId: body?.message?.toolCallList?.[0]?.id || "direct", result: "Interview generated successfully" }],
+      success: true 
+    }, { status: 200 });
   } catch (error) {
     console.error("Error:", error);
     return Response.json({ success: false, error: error }, { status: 500 });
