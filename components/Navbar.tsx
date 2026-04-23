@@ -76,6 +76,16 @@ const Navbar = ({ user }: NavbarProps) => {
           >
             AI Resume Analyzer
           </a>
+
+           <a
+            href="https://tp-1-one-sandy.vercel.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-light-100 hover:text-primary-100 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+          >
+            Code Arena
+          </a>
+          
         </div>
 
         {/* Desktop Profile Section */}
